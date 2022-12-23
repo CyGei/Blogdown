@@ -1,8 +1,14 @@
 ---
+bio:
+education:
+  courses:
+  - course: 'PhD in Clinical Medical Research: Mathematical Modelling of Infectious Diseases' 
+  institution: Imperial College London
+  year: 2021
 organizations:
 - name: Imperial College London
   url: https://www.imperial.ac.uk/people/c.geismar21
-role: 'PhD student in Clinical Medical Research: <br /> Mathematical Modelling of Infectious Diseases'
+role: 'PhD student in Infectious Disease Epidemiology <br /> '
 social:
 - icon: envelope
   icon_pack: fas
