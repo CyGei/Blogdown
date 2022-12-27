@@ -11,7 +11,6 @@ links:
   icon_pack: mdi
   name: Abstract
   url: https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(22)02250-4/fulltext
-slides: SI
 summary: Inferring the serial interval from transmission chains.
 tags:
 - PhD
