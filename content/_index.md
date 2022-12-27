@@ -31,7 +31,7 @@ sections:
     - name: PhD
       tag: PhD
     - name: Other
-      tag: Demo
+      tag: Other
     default_button_index: 0
     filters:
       folders:
