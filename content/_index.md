@@ -100,6 +100,8 @@ sections:
     title: Experience
   design:
     columns: "2"
+    
+    
 # - block: accomplishments
 #   content:
 #     date_format: Jan 2006

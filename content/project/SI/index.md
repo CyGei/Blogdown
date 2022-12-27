@@ -1,22 +1,22 @@
 ---
 date: "2022-10-18T00:00:00Z"
 external_link: ""
-image:
-  caption: Photo by rawpixel on Unsplash
-  focal_point: Smart
 links:
 - icon: presentation-screen
   icon_pack: mdi
   name: Slides
   url: https://docs.google.com/presentation/d/1q8v8RGFvl2unbx3cMQ1wnImICEk01dR9/edit?usp=share_link&ouid=108186952269546416931&rtpof=true&sd=true
+
+- icon: presentation-screen
+  icon_pack: mdi
+  name: Abstract
+  url: https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(22)02250-4/fulltext
 slides: SI
-summary: Inferring the Serial Interval from transmission chains.
+summary: Inferring the serial interval from transmission chains.
 tags:
-- SARS-CoV-2
-- Variants of Concern
-- serial interval
-- outbreaker2
-title: Estimating the SARS-CoV-2 Serial Interval
+- PhD
+
+title: Estimating the SARS-CoV-2 serial Interval by variants.
 ---
 
 # **Bayesian reconstruction of SARS-CoV-2 transmissions highlights substantial proportion of negative serial intervals.**
