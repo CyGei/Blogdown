@@ -1,6 +1,10 @@
 ---
 date: "2022-10-18T00:00:00Z"
 external_link: ""
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
 links:
 - icon: presentation-screen
   icon_pack: mdi

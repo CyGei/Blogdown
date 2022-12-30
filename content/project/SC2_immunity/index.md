@@ -1,5 +1,9 @@
 ---
 date: "2022-01-01"
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
 links:
 - icon: presentation-screen
   icon_pack: mdi
