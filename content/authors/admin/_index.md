@@ -15,13 +15,11 @@ social:
   link: /#contact
 - icon: graduation-cap
   icon_pack: fas
-  link: https://orcid.org/my-orcid?orcid=0000-0002-8486-5890
+  link: https://orcid.org/0000-0002-8486-5890
 - icon: github
   icon_pack: fab
   link: https://github.com/CyGei
-- icon: cv
-  icon_pack: ai
-  link: uploads/resume.pdf
+  
 status:
   icon: 
 superuser: false
