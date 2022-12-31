@@ -40,7 +40,7 @@ sections:
       date_end: ""
       date_start: "2021-11-01"
       description: |2-
-          Mathematical Modelling of Infectious Diseases:
+          **Mathematical Modelling of Infectious Diseases:**
 
           * Bayesian Modelling
           * Genetic & Epidemiological analyses
