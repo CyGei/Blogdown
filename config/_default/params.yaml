@@ -42,9 +42,9 @@ header:
 
 footer:
   copyright:
-    notice: '© {year} CG. This work is licensed under {license}'
+    notice: '© {year} CG'
     license:
-      enable: true
+      enable: false
       allow_derivatives: false
       share_alike: false
       allow_commercial: false
