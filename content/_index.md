@@ -52,7 +52,8 @@ sections:
       company_url: ""
       date_end: ""
       date_start: "2022-05-01"
-      description: Research work for the COVID-19 Virus Watch Study “priority analyses” in collaboration with Imperial College.
+      description: |2-
+        [Virus Watch Study](http://ucl-virus-watch.net/)
       location: London, UK
       title: Associate Researcher
     - company: UCL Institute of Epidemiology and Health Care
@@ -61,7 +62,7 @@ sections:
       date_end: "2022-04-01"
       date_start: "2020-10-01"
       description: |2-
-        Virus Watch Study (http://ucl-virus-watch.net/)
+        [Virus Watch Study](http://ucl-virus-watch.net/)
         * Analytical tasks 
         * Operational tasks 
         * Teaching Assistant
@@ -90,7 +91,7 @@ sections:
       date_end: "2020-09-01"
       date_start: "2019-09-01"
       description: |2-
-        * Quantitative route
+        * **Quantitative route**
         * [Course description](https://www.ucl.ac.uk/prospective-students/graduate/taught-degrees/applied-infectious-disease-epidemiology-msc)
       location: London, UK
       title: MSc. Infectious Disease Epidemiology
