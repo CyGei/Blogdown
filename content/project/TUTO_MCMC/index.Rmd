@@ -29,7 +29,6 @@ tags:
 - PhD
 ---
 
-
 *A short step by step exercise to write a Bayesian Model using a MCMC algorithm in `R` & `C++`.*
 
 ------------------------------------------------------------------------
