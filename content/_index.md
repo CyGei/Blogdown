@@ -34,20 +34,25 @@ sections:
   content:
     date_format: Jan 2006
     items:
-    - company: Imperial College London
+    - company: Imperial College London, Dept. Infectious Disease Epidemiology
       company_logo: imperial
       company_url: ""
       date_end: ""
       date_start: "2021-11-01"
       description: |2-
           **Mathematical Modelling of Infectious Diseases:**
-
           * Bayesian Modelling
           * Genetic & Epidemiological analyses
           * Programming (R, C++)
+          
+          **Supervisors:** <br>
+          Dr. Anne Cori, Dr. Thibaut Jombart & Prof. Peter White <br>
+          **Fully funded studentship:**<br> [NIHR](https://www.nihr.ac.uk/about-us/what-we-do/) [Health Protection Research Unit in Modelling and Health Economics](https://www.imperial.ac.uk/hpru-modelling/)
+          
+          
       location: London, UK
       title: PhD Clinical Medical Research
-    - company: UCL Institute of Health Informatics
+    - company: UCL, Institute of Health Informatics
       company_logo: UCL
       company_url: ""
       date_end: ""
@@ -56,7 +61,7 @@ sections:
         [Virus Watch Study](http://ucl-virus-watch.net/)
       location: London, UK
       title: Associate Researcher
-    - company: UCL Institute of Epidemiology and Health Care
+    - company: UCL, Institute of Epidemiology and Health Care
       company_logo: UCL
       company_url: ""
       date_end: "2022-04-01"
@@ -69,7 +74,7 @@ sections:
       location: London, UK
       title: Research Assistant - Data Scientist
 
-    - company: Ministry of the French Armed Forces
+    - company: Ministry of the French Armed Forces, Etat Major
       company_logo: army
       company_url: ""
       date_end: "2020-08-01"
