@@ -8,7 +8,7 @@ links:
 - icon: github
   icon_pack: fab
   name: .Rmd file
-  url: https://github.com/CyGei/Blogdown/tree/main/content/project/TUTO_MCMC
+  url: https://github.com/CyGei/Tuto_MCMC 
 
 image:
   caption: 'Thomas Bayes, AI generated'
@@ -602,12 +602,12 @@ head(output)
     ## # A tibble: 6 × 8
     ##    iter mu_chain sd_chain accept_mu accept_sd logprior_chain loglike_c…¹ logpo…²
     ##   <int>    <dbl>    <dbl>     <dbl>     <dbl>          <dbl>       <dbl>   <dbl>
-    ## 1     1     5        1            0         0          -994.      -7000.  -7994.
-    ## 2     2     4.94     1.09         1         1         -1080.      -5754.  -6834.
-    ## 3     3     4.94     1.09         0         1         -1085.      -5707.  -6792.
-    ## 4     4     4.91     1.09         1         0         -1085.      -5562.  -6647.
-    ## 5     5     4.91     1.10         0         1         -1095.      -5471.  -6566.
-    ## 6     6     4.83     1.14         1         1         -1130.      -4910.  -6040.
+    ## 1     1     5        1            0         0          -994.      -6984.  -7978.
+    ## 2     2     4.94     1            1         0          -994.      -6674.  -7668.
+    ## 3     3     4.94     1.13         0         1         -1129.      -5329.  -6458.
+    ## 4     4     4.94     1.13         0         0         -1129.      -5329.  -6458.
+    ## 5     5     4.93     1.21         1         1         -1207.      -4707.  -5914.
+    ## 6     6     4.93     1.28         0         1         -1270.      -4335.  -5605.
     ## # … with abbreviated variable names ¹​loglike_chain, ²​logpost_chain
 
 ## Analysing the MCMC output
@@ -772,8 +772,8 @@ clean_chain(output, thinning = 50, burnin = 200) %>%
     ## # A tibble: 2 × 5
     ##   param     mean lower95 upper95 truth
     ##   <chr>    <dbl>   <dbl>   <dbl> <dbl>
-    ## 1 mu_chain 2.14    2.14    2.15   2.14
-    ## 2 sd_chain 0.113   0.109   0.119  0.12
+    ## 1 mu_chain 2.15     2.14   2.15   2.14
+    ## 2 sd_chain 0.114    0.11   0.119  0.12
 
 A 95% credible interval is a range of values that has a 95% probability of containing the true value of a parameter.
 
