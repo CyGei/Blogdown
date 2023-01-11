@@ -8,7 +8,7 @@ links:
 - icon: github
   icon_pack: fab
   name: .Rmd file
-  url: https://github.com/CyGei/mcmcTuto/blob/main/step_by_step.Rmd
+  url: https://github.com/CyGei/Blogdown/tree/main/content/project/TUTO_MCMC
 
 image:
   caption: 'Thomas Bayes, AI generated'
