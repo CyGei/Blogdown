@@ -8,31 +8,13 @@ links:
 - icon: github
   icon_pack: fab
   name: .Rmd file
-  url: https://github.com/CyGei/Tuto_MCMC 
+  url: https://github.com/CyGei/MCMC_Tutorial
 
 image:
-  caption: 'Thomas Bayes, AI generated'
+  caption: 'Thomas Bayes'
   focal_point: ''
   preview_only: no
 
-output:
-  html_document:
-    theme: readable
-    highlight: breezedark
-    toc: yes
-    toc_float:
-      collapsed: no
-      smooth_scroll: no
-    df_print: paged
-
-tags:
-- PhD
----
-
----
-title: "Bayesian Modelling & MCMC:<br> _a step by step tutorial_"
-author: "Cy Geismar"
-date: "January 7, 2023"
 output:
   html_document:
     toc: yes
@@ -44,6 +26,9 @@ output:
     toc_float:
       collapsed: no
       smooth_scroll: no
+
+tags:
+- PhD
 ---
 
 *A short step by step exercise to write a Bayesian Model using a MCMC algorithm in `R` & `C++`.*
@@ -88,7 +73,7 @@ In Bayesian analysis, a prior is used in conjunction with Bayes' theorem to upda
 
 **For example**, imagine you are trying to **estimate the probability that a person has a certain medical condition based on their test result**. The test is not 100% accurate, so there is a chance that it will give a false positive (i.e., the test says the person has the condition, but they actually do not) or a false negative (i.e., the test says the person does not have the condition, but they actually do). The **prior** in this case would be **the initial probability that the person has the condition**, based on factors such as their age, gender, and other risk factors. The **likelihood** would be the **probability of the test result given the person's condition**. The **posterior** probability would be the updated **probability that the person has the condition, based on the prior and the likelihood**.
 
-<center>![Bayes Theorem](content/bayes.png)</center>
+<center>![Bayes Theorem](extra/bayes.png)</center>
 
 \n
 
@@ -392,17 +377,13 @@ Store `.cpp` and `.h` files below in a folder called *cpp_files.*
 
 ## Model
 
-Let's now write our model in C++ using the Rcpp package.
+Let's now write our model in C++ using the Rcpp package. Useful documentation about probability distributions available [here](//https://teuder.github.io/rcpp4everyone_en/220_dpqr_functions.html).
 
 ### `cpp_model.cpp`
 
-*Note we only export the `log_posterior` function since that's the only one we will call in our MCMC.*
-
 ```{Rcpp cpp_model.cpp, eval = FALSE}
 //https://teuder.github.io/rcpp4everyone_en/220_dpqr_functions.html
-
 #include <Rcpp.h>
-
 using namespace Rcpp;
 
 //LIKELIHOOD
@@ -410,7 +391,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 double log_likelihood(NumericVector dat, double mu, double sd) 
 {
-  if(mu<=0){
+  if( (mu<=0) | (sd<=0) ){
     return (R_NegInf);
   } else{
     return sum(Rcpp::dgamma(dat, std::pow(mu/sd, 2), std::pow(sd, 2) / mu, true ));
@@ -418,8 +399,10 @@ double log_likelihood(NumericVector dat, double mu, double sd)
 }
 
 
+
 //PRIOR
 
+// [[Rcpp::export]]
 double log_prior_mu(double mu, double prior_mu, double prior_sd) 
 {
   if(mu<0){
@@ -430,23 +413,26 @@ double log_prior_mu(double mu, double prior_mu, double prior_sd)
   }
 }
 
-
+// [[Rcpp::export]]
 double log_prior_sd(double sd){
-  return R::dexp(sd, 1.0/1000.0, TRUE);
+  return R::dexp(sd, 1000.0, TRUE); // The R namespace version are parameterised in terms of the scale (=1/rate)
 }
 
+// [[Rcpp::export]]
 double log_prior_total(double mu, double sd, double prior_mu, double prior_sd)
 {
   return (log_prior_mu(mu, prior_mu, prior_sd) + log_prior_sd(sd));
 }
 
+
+
 // POSTERIOR
+
 // [[Rcpp::export]]
 double log_posterior(Rcpp::NumericVector dat, double mu, double sd, double prior_mu, double prior_sd)
 {
   return( log_likelihood(dat, mu, sd) + log_prior_total(mu, sd, prior_mu, prior_sd) );
 }
-
 ```
 
 ### `cpp_model.h`
@@ -454,7 +440,6 @@ double log_posterior(Rcpp::NumericVector dat, double mu, double sd, double prior
 *The below is a "header file", you need it to call the created functions into another cpp function.*
 
 ```{Rcpp cpp_model.h, eval = FALSE}
-
 #ifndef CPP_MODEL_H
 #define CPP_MODEL_H
 
@@ -475,122 +460,171 @@ double log_posterior(Rcpp::NumericVector dat, double mu, double sd, double prior
 
 ## Movement Functions
 
-Let's write our movement function for the **markov chain**. Movement functions update the value of the parameters (`mu`/`sd`) as we explore the posterior distributions in the MCMC.
+Let's write our movement functions for the **markov chain**. Movement functions update the value of the parameters (`mu`/`sd`) as we explore the posterior distributions in the MCMC. The **Metropolis-Hastings** algorithm is an MCMC algorithm that uses a movement function (proposal distribution) to iteratively generate a new point in the parameter space. The new point is then either accepted or rejected based on the ratio of the target distribution evaluated at the new point to the target distribution evaluated at the current point.
 
 ### `Move.cpp`
 
-In the **`move_param()`** function below, the parameter being proposed for a move is determined by the `moving` argument, which is a string that can take the values "mu" or "sd" representing the mean or standard deviation respectively. `curr_param` is the current value of the parameter that is being proposed for a move in the MCMC algorithm, while `fixed_param` is the value of the other parameter that is not being proposed for a move. If `moving` is "mu", then `curr_param` is the current value of the **mean** and `fixed_param` is the current value of the **standard deviation**. Similarly, if `moving` is "sd", then `curr_param` is the current value of the **standard deviation** and `fixed_param` is the current value of the **mean**.
-
-The `log_posterior()` function is called to compute the ratio of the posterior probabilities of the **new and current values of the parameter**. The ratio of the posterior probabilities is then used to determine whether to accept or reject the proposed move. If the proposed move is accepted, `curr_param` is updated with the **new value**, otherwise the current value is retained.
+The `log_posterior()` function is called to compute the ratio of the posterior probabilities of the **new and current values of the parameter**. The ratio of the posterior probabilities is then used to determine whether to accept or reject the proposed move. If the proposed move is accepted, `curr_mu` is updated with the **new value** (`new_mu`), otherwise the current value is retained.
 
 ```{Rcpp move_param,  eval = FALSE}
-
 #include <Rcpp.h>
 #include "cpp_model.h"
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-Rcpp::List move_param(std::string moving,
-                      double curr_param,
-                      double fixed_param,
-                      double sd_proposal,
-                      Rcpp::NumericVector dat,
-                      double prior_mu,
-                      double prior_sd) 
-{
+List move_mu(double curr_mu, double curr_sd, double sd_proposal_mu, Rcpp::NumericVector dat, double prior_mu, double prior_sd) {
   
-  // printing info
-  Rcpp::Rcout << "moving " << moving << std::endl;
-  Rcpp::Rcout << "curr_param: " << curr_param << std::endl;
-  Rcpp::Rcout << "fixed_param: " << fixed_param << std::endl;
+  // Moving MU
+  Rcpp::Rcout << "MOVING MU: " << std::endl;
   
+  // Print out the current values of the mean and standard deviation
+  Rcpp::Rcout << "curr_mu: " << curr_mu << std::endl;
+  Rcpp::Rcout << "curr_sd: " << curr_sd << std::endl;
   
-  // Sample a new value for the parameter from a normal distribution with mean equal to the current parameter value and standard deviation equal to sd_proposal
-  double new_param = R::rnorm(curr_param, sd_proposal);
+  //declaring accept outside of if statement
+  int accept ;
   
-  // Print out the new value of the parameter
-  Rcpp::Rcout << "new_param: " << new_param << std::endl;
+  // Sample a new value for the mean from a normal distribution with mean equal to the current mean and standard deviation equal to sd_proposal_mu
+  double new_mu = R::rnorm(curr_mu, sd_proposal_mu);
   
-  // Declare ratio_post outside if{} statement to compile
-  double ratio_post;
+  // Print out the new value of the mean
+  Rcpp::Rcout << "new_mu: " << new_mu << std::endl;
   
-  // Calculate the ratio of the posterior probabilities for the new and current values of the parameter
-  if(moving == "mu"){
-    
-    ratio_post = log_posterior(dat, new_param, fixed_param, prior_mu, prior_sd) - log_posterior(dat, curr_param, fixed_param, prior_mu, prior_sd);
-    
-  } else if(moving == "sd") {
-    
-    ratio_post = log_posterior(dat, fixed_param, new_param, prior_mu, prior_sd) - log_posterior(dat, fixed_param, curr_param, prior_mu, prior_sd);
-    
-  }else{
-    
-    ratio_post = R_NegInf;
-    
-  }
+  // Calculate the ratio of the posterior probabilities for the new and current values of the mean
+  double ratio_post = log_posterior(dat, new_mu, curr_sd, prior_mu, prior_sd) - log_posterior(dat, curr_mu, curr_sd, prior_mu, prior_sd);
   
-  // Initialize the correction term to 0 (0 because our proposal distribution is symetrical)
+  // Initialize the correction term to 0
   double correction = 0.0;
   
-  // Calculate the acceptance probability for the new value of the parameter  
+  // Calculate the acceptance probability for the new value of the mean
   double p_accept = ratio_post + correction;
+  
+  Rcpp::Rcout << "p_accept: " << p_accept << std::endl;
+  
+  // Sample a uniform random value between 0 and 1
+  double tmp = log(Rcpp::runif(1)[0]);
+  Rcpp::Rcout << "random draw: " << tmp << std::endl;
+  
+  
+  // If the random value is less than the acceptance probability, accept the new value of the mean
+  if (tmp < p_accept) {
+    
+    curr_mu = new_mu;
+    accept = 1.0;
+    
+    // Print out that the new value of the mean was accepted
+    Rcpp::Rcout << "accept" << std::endl << std::endl;
+    
+    
+  } else { 
+    
+    // Otherwise, reject the new value of the mean and keep the current value
+    accept = 0.0;
+    
+    // Print out that the new value of the mean was rejected
+    Rcpp::Rcout << "reject" << std::endl << std::endl;
+  }
+  
+  // Return a pair containing the updated value of the mean and a binary value indicating whether the new value was accepted or rejected
+  return Rcpp::List::create(Rcpp::Named("updated_mu") = curr_mu, Rcpp::Named("accept") = accept);
+}
+
+
+
+
+
+
+// [[Rcpp::export]]
+List move_sd(double curr_mu, double curr_sd, double sd_proposal_sd, Rcpp::NumericVector dat, double prior_mu, double prior_sd) {
+  
+  // Moving SD
+  Rcpp::Rcout << "MOVING SD: " << std::endl;
+  
+  // Print out the current values of the mean and standard deviation
+  Rcpp::Rcout << "curr_mu: " << curr_mu << std::endl;
+  Rcpp::Rcout << "curr_sd: " << curr_sd << std::endl;
+  
+  //declaring accept outside of if statement
+  int accept ;
+  
+  // Sample a new value for the standard deviation from a normal distribution with mean equal to the current standard deviation and standard deviation equal to sd_proposal_sd
+  double new_sd = R::rnorm(curr_sd, sd_proposal_sd);
+  
+  // Print out the new value of the standard deviation
+  Rcpp::Rcout << "new_sd: " << new_sd << std::endl;
+  
+  // Calculate the ratio of the posterior probabilities for the new and current values of the standard deviation
+  double ratio_post = log_posterior(dat, curr_mu, new_sd, prior_mu, prior_sd) - log_posterior(dat, curr_mu, curr_sd, prior_mu, prior_sd);
+  
+  // Initialize the correction term to 0
+  double correction = 0;
+  
+  // Calculate the acceptance probability for the new value of the standard deviation
+  double p_accept = ratio_post + correction;
+  
+  // Print out the acceptance probability
   Rcpp::Rcout << "p_accept: " << p_accept << std::endl;
   
   // Sample a uniform random value between 0 and 1
   double tmp = log(Rcpp::runif(1)[0]);
   
-  // If the random value is less than the acceptance probability, accept the new value of the parameter   
-  double updated_param;
-  double accept;
-  if(tmp < p_accept) 
-  {
-    updated_param = new_param;
-    accept = 1;
+  // If the random value is less than the acceptance probability, accept the new value of the sd
+  if (tmp < p_accept) {
+    
+    curr_sd = new_sd;
+    
+    accept = 1.0;
+    
+    // Print out that the new value of the sd was accepted
     Rcpp::Rcout << "accept" << std::endl << std::endl;
     
-  }else // reject
-  {
-    updated_param = curr_param; 
-    accept = 0;
+  } else { // Otherwise, reject the new value of the sd and keep the current value
+    
+    accept = 0.0;
+    
+    // Print out that the new value of the sd was rejected
     Rcpp::Rcout << "reject" << std::endl << std::endl;
   }
   
-  // Return a List containing the updated value of the parameter and a binary value indicating whether the new value was accepted or rejected
-  return Rcpp::List::create(Rcpp::Named("updated_param") = updated_param,
-                            Rcpp::Named("accept") = accept);
+  // Return a pair containing the updated value of the sd and a binary value indicating whether the new value was accepted or rejected
+  
+  return Rcpp::List::create(Rcpp::Named("updated_sd") = curr_sd, Rcpp::Named("accept") = accept);
 }
+
 ```
 
-This function implements the Metropolis-Hastings algorithm for the parameter $\theta$ (`mu` or `sd`). The algorithm works as follows:
+This function implements the Metropolis-Hastings algorithm for the parameter `mu`. The algorithm works as follows:
 
-1.  A proposal for a new value of $\theta$ is generated from a normal distribution with mean equal to the current value of the parameter (`curr_param`) and standard deviation equal to `sd_proposal`.
+1.  The current values of `mu` and the `sd` are provided as input, as well as other hyperparameters.
 
-2.  The posterior probability of the data given the current and proposed values of $\theta$ are calculated using the `log_posterior()` function which combines the likelihood (calculated using the `log_likelihood()` function) and the prior (calculated using the `log_prior_total()` function).
+2.  A proposal for a new value of mu (`new_mu`) is generated from a normal distribution with mean equal to the current value of mu (`curr_mu`) and standard deviation equal to `sd_proposal_mu`.
 
-3.  A `correction` term is added to the ratio of the posterior probabilities. This term is typically used to correct for asymmetry in the proposal distribution. In this case, the correction is set to zero since the proposal distribution is symmetrical (normal).
+3.  The posterior probability of the data given the current and proposed values of `mu` are calculated using the `log_posterior()` function which combines the likelihood (calculated using the `log_likelihood` function) and the prior (calculated using the `log_prior_total` function).
 
-4.  The acceptance probability, `p_accept`, is calculated as the sum of the ratio of the posterior probabilities and the correction term.
+4.  A `correction` term is added to the ratio of the posterior probabilities. This term is typically used to correct for asymmetry in the proposal distribution. In this case, the correction is set to zero since the proposal distribution is symmetrical (normal).
 
-5.  A random uniform value between 0 and 1 is generated (`tmp`) and compared to the acceptance probability. If the uniform value is less than the acceptance probability, the proposed value of $\theta$ is accepted and becomes the updated value. Otherwise, the current value is retained.
+5.  The acceptance probability, `p_accept`, is calculated as the sum of the ratio of the posterior probabilities and the correction term.
 
-6.  The updated value of $\theta$ and a binary indicator of acceptance (1 if accepted, 0 if rejected) are returned.
+6.  A random uniform value between 0 and 1 is generated (`tmp`) and compared to the acceptance probability. If the uniform value is less than the acceptance probability, the proposed value of `mu` is accepted and becomes the updated value. Otherwise, the current value is retained.
+
+7.  The updated value of `mu` and a binary indicator of acceptance (1 if accepted, 0 if rejected) are returned.
+
+In a similar fashion we wrote `move_sd()`.
 
 ### `Move.h`
 
-Now store the header file in your main directory.
-
 ```{Rcpp move.h,  eval = FALSE}
-
 #ifndef MOVE_H
 #define MOVE_H
 
 #include <Rcpp.h>
-
 using namespace Rcpp;
 
-List move_param(std::string moving, double curr_param, double fixed_param, double sd_proposal, Rcpp::NumericVector dat, double prior_mu, double prior_sd);
+List move_mu(double curr_mu, double curr_sd, double sd_proposal_mu, Rcpp::NumericVector dat, double prior_mu, double prior_sd);
+List move_sd(double curr_mu, double curr_sd, double sd_proposal_sd, Rcpp::NumericVector dat, double prior_mu, double prior_sd);
 
 #endif
+
 
 ```
 
@@ -612,7 +646,7 @@ Rcpp::DataFrame mcmc(int n_iter,
                      double init_sd, 
                      double sd_proposal_mu,
                      double sd_proposal_sd,
-                     Rcpp::NumericVector data, 
+                     Rcpp::NumericVector dat, 
                      double prior_mu, 
                      double prior_sd )
 {
@@ -625,15 +659,15 @@ Rcpp::DataFrame mcmc(int n_iter,
   
   // Log-likelihoods
   NumericVector loglike_chain(n_iter);
-  loglike_chain[0] = log_likelihood(data, mu_chain[0], sd_chain[0]);
-  
-  //Log-posterior
-  NumericVector logpost_chain(n_iter);
-  logpost_chain[0] = log_posterior(data, mu_chain[0],sd_chain[0],prior_mu, prior_sd);
+  loglike_chain[0] = log_likelihood(dat, mu_chain[0], sd_chain[0]);
   
   //Log-prior
   NumericVector logprior_chain(n_iter);
   logprior_chain[0] = log_prior_total(mu_chain[0], sd_chain[0], prior_mu, prior_sd);
+  
+  //Log-posterior
+  NumericVector logpost_chain(n_iter);
+  logpost_chain[0] = log_posterior(dat, mu_chain[0],sd_chain[0],prior_mu, prior_sd);
   
   
   // Vectors to store the acceptance rate for the mu and sd parameters
@@ -643,33 +677,33 @@ Rcpp::DataFrame mcmc(int n_iter,
   for(int k = 0; k < n_iter-1; k++)
   {
     Rcpp::Rcout << "iteration: " << k << std::endl;
-    //mu
-    Rcpp::List tmp = move_param("mu",
-                                mu_chain[k],
-                                        sd_chain[k],
-                                                sd_proposal_mu,
-                                                data, 
-                                                prior_mu, 
-                                                prior_sd);
-    mu_chain[k+1] = tmp["updated_param"];
+    
+    //MU
+    Rcpp::List tmp = move_mu(mu_chain[k], 
+                             sd_chain[k],
+                             sd_proposal_mu,
+                             dat,
+                             prior_mu,
+                             prior_sd);
+    
+    mu_chain[k+1] = tmp["updated_mu"];
     accept_mu[k+1] = tmp["accept"];
     
-    //sd
-    tmp = move_param("sd",
-                     sd_chain[k],
-                             mu_chain[k+1],
-                                     sd_proposal_sd,
-                                     data, 
-                                     prior_mu, 
-                                     prior_sd);
+    //SD
+    tmp = move_sd(mu_chain[k+1],
+                  sd_chain[k],
+                  sd_proposal_mu,
+                  dat,
+                  prior_mu, 
+                  prior_sd);
     
-    sd_chain[k+1] = tmp["updated_param"];
+    sd_chain[k+1] = tmp["updated_sd"];
     accept_sd[k+1] = tmp["accept"];
     
     // update log-prior/likelihood/posterior
     logprior_chain[k+1] = log_prior_total(mu_chain[k+1], sd_chain[k+1], prior_mu, prior_sd);
-    loglike_chain[k+1] = log_likelihood(data, mu_chain[k+1], sd_chain[k+1]);
-    logpost_chain[k+1] = log_posterior(data, mu_chain[k+1], sd_chain[k+1], prior_mu, prior_sd);
+    loglike_chain[k+1] = log_likelihood(dat, mu_chain[k+1], sd_chain[k+1]);
+    logpost_chain[k+1] = log_posterior(dat, mu_chain[k+1], sd_chain[k+1], prior_mu, prior_sd);
 
   }
   // Create the output data frame
@@ -683,7 +717,6 @@ Rcpp::DataFrame mcmc(int n_iter,
                                     Named("logpost_chain") = logpost_chain);
   return out;
 }
-
 
 ```
 
@@ -739,14 +772,14 @@ Easy peasy🍋 squeezy, you are ready to load the `mcmcTuto` package to use the 
 library(mcmcTuto)
 
 output <- mcmcTuto::mcmc(
-  n_iter = 5000,
+  n_iter = 2000,
   init_mu = 5, 
   init_sd = 1,
   sd_proposal_mu = 0.05 ,
   sd_proposal_sd = 0.05 ,
   prior_mu = prior_mu, #defined previously
   prior_sd = prior_sd, #defined previously
-  data = data
+  dat = data
 ) %>%
   as_tibble()
 
@@ -773,11 +806,12 @@ Here are the key concepts to understand to analyse the MCMC output:
 
 6.  **Auto-correlation** in MCMC refers to the statistical dependence between successive samples in a chain. High correlation between samples can indicate that the chain has not yet fully converged, or that the posterior distribution has multiple modes or other structures that are causing the chain to get stuck.
 
-let's write R functions to process and visualise the mcmc output.
+Let's write R functions to process and visualise the mcmc output. You can create a .Rscript stored in the R folder of the `mcmcTuto` package. On top of the file write the following `#' @export` to export the R functions from your package an repeat the \`devtools::build()\` and \`devtools::install()\` commands
 
 ### Trace Plots
 
 ```{r trace_functions}
+#add these function to the package in the R folder
 clean_chain <- function(chain, thinning = 1, burnin = 0){
   chain %>% 
     filter((iter %in%  seq(1,nrow(.), thinning)) & iter >= burnin) %>% 
@@ -795,8 +829,6 @@ trace_plot <- function(chain){
     labs(x = "iteration")+
     theme(legend.position = "none")
 }
-
-
 ```
 
 ```{r trace_plots}
@@ -810,7 +842,7 @@ trace_plot(clean_chain(output, 50, 200)) # sampling every 50 iterations, removin
 We use the `stats::acf()` function to calculate autocorrelation.
 
 ```{r acf_functions}
-
+#add these function to the package in the R folder
 acf_2_df <- function(chain, params){
   chain %>%  
   filter(param %in% c(params)) %>% 
@@ -832,7 +864,7 @@ acf_plot <-  function(df){
   geom_hline(aes( yintercept = 0), lty = "solid")+
   geom_hline(aes( yintercept = lower), lty = "dotted")+
   geom_hline(aes( yintercept = upper), lty = "dotted")+
-  facet_wrap(~param)+
+  facet_wrap(~param, scales = "free")+
   scale_color_fira()+
   labs(y = "cor")
 }
@@ -918,4 +950,3 @@ A 95% credible interval is a range of values that has a 95% probability of conta
 # Credits
 
 **Thanks to** [Anne Cori](https://www.imperial.ac.uk/people/a.cori) **for providing the R code to write and MCMC. And thanks to** [chatGPT](https://openai.com/blog/chatgpt/) **for helping troubleshoot some errors and write definitions!**
-
