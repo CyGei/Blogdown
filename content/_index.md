@@ -25,7 +25,7 @@ sections:
   design:
     columns: "1"
     flip_alt_rows: false
-    view: showcase
+    view: grid 
   id: projects
 
 

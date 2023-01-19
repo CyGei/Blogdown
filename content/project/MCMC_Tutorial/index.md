@@ -11,7 +11,7 @@ links:
   url: https://github.com/CyGei/MCMC_Tutorial
 
 image:
-  caption: 'Thomas Bayes'
+  caption: 'Image from atatekeli.medium.com'
   focal_point: ''
   preview_only: no
 

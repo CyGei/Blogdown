@@ -5,8 +5,8 @@ image:
   focal_point: ''
   preview_only: no
 links:
-- icon: presentation-screen
-  icon_pack: mdi
+- icon: fas fa-link
+  icon_pack: fas
   name: VirusWatch
   url: https://ucl-virus-watch.net/
 

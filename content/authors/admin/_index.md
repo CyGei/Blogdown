@@ -22,9 +22,10 @@ social:
   
 status:
   icon: 
-superuser: false
+superuser: true
 title: Cy Geismar
 ---
+
 <div style="text-align: justify">
 
 My PhD aims at developing software and methods for the Bayesian inference of transmission trees (who infected whom). Using genetic and epidemiological data, the [outbreaker2](http://www.repidemicsconsortium.org/outbreaker2/) package reconstructs transmission trees. I aim to develop additional likelihood components to the model and additional functionalities to visualise, process and analyse outbreak data.

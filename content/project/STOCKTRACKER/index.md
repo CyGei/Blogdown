@@ -6,6 +6,13 @@ image:
   focal_point: ''
   preview_only: no
 
+links:
+- icon: fas fa-link
+  icon_pack: fas
+  name: App
+  url: https://cygeismar.shinyapps.io/stocktracker/
+
+
 summary: A R package and Shiny Web App to visualise and retrive headlines for a stock at any given time.
 
 tags:
@@ -30,8 +37,8 @@ Stocks go up and down, before investing you might want to check the company's hi
 
 `stocktracker` retrieves top headlines related to your stock when you click on a specific point on the chart. You will need to register at [newsapi.org](newsapi.org) to obtain an API key (for now).
 
-If the app doesn't fit this webpage well, check out the [`stocktracker`](https://cygeismar.shinyapps.io/stocktracker/)'s website instead.
+<br>
 
-<iframe src="https://cygeismar.shinyapps.io/stocktracker" width="100%" height="500">
+<div style="text-align: center">
 
-</iframe>
+🔗 <https://cygeismar.shinyapps.io/stocktracker/>

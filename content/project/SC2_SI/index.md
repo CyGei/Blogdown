@@ -6,13 +6,13 @@ image:
   focal_point: ''
   preview_only: no
 links:
-- icon: presentation-screen
-  icon_pack: mdi
+- icon: fas fa-link
+  icon_pack: fas
   name: Slides
   url: https://docs.google.com/presentation/d/1q8v8RGFvl2unbx3cMQ1wnImICEk01dR9/edit?usp=share_link&ouid=108186952269546416931&rtpof=true&sd=true
 
-- icon: presentation-screen
-  icon_pack: mdi
+- icon: fas fa-link
+  icon_pack: fas
   name: Abstract
   url: https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(22)02250-4/fulltext
 summary: Inferring the serial interval from transmission chains.
